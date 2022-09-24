@@ -5,10 +5,6 @@ use std::io;
 fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), String> {
     let re = Regex::new("(f *)?\\d+ *\\d+ *").expect("Invalid regex");
     let pat = Regex::new(" +").expect("Invalid regex");
-    let mut x: usize;
-    let mut y: usize;
-    let mut first: &str;
-    let mut flag: bool;
 
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Input Error");
@@ -17,7 +13,9 @@ fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), Strin
         return Err("ERR: Input was not in the correct format".to_string());
     }
     let mut mat = pat.split(&input);
-    first = mat.next().unwrap();
+    let first = mat.next().unwrap();
+    let x: usize;
+    let flag: bool;
     if first.eq("f") {
         x = mat.next().unwrap().parse::<usize>().unwrap() - 1;
         flag = true;
@@ -25,7 +23,7 @@ fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), Strin
         x = first.parse::<usize>().unwrap() - 1;
         flag = false;
     }
-    y = mat.next().unwrap().parse::<usize>().unwrap() - 1;
+    let y = mat.next().unwrap().parse::<usize>().unwrap() - 1;
     if x >= x_max || y >= y_max {
         return Err("ERR: Row and Col input cannot be larger than board".to_string());
     }
