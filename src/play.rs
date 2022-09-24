@@ -3,11 +3,13 @@ use regex::Regex;
 use std::io;
 
 fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), String> {
-    let re = Regex::new("(f *)?\\d+ *\\d+ *").expect("Invalid regex");
-    let pat = Regex::new(" +").expect("Invalid regex");
+    let re = Regex::new("^(f *)?\\d+,? *\\d+ *$").expect("Invalid regex");
+    let pat = Regex::new("[ ,]+").expect("Invalid regex");
 
     let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Input Error");
+    if io::stdin().read_line(&mut input).is_err() {
+        return Err("ERR: Input was not in the correct format".to_string());
+    }
     input = input.trim().to_string();
     if re.find(&input).is_none() {
         return Err("ERR: Input was not in the correct format".to_string());
@@ -31,7 +33,7 @@ fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), Strin
 }
 
 pub fn play_game(mut board: Board) {
-    let input_msg = "Enter coordinates, (1, 1) is top-left";
+    let input_msg = "Enter coordinates:";
     let input_eg = "eg, \"1 3\" for the first column, third row";
     let flag_msg = "To flag a square, put \"f\" at the start of your message";
     let flag_eg = "eg, \"f 1 3\"";

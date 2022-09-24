@@ -4,7 +4,7 @@ mod play;
 use play::play_game;
 
 fn main() {
-    let board = Board::new(10, 10, 5);
+    let board = Board::new(10, 10, 8);
 
     // board.display();
     // board.trigger(3, 3);
