@@ -2,39 +2,34 @@ use crate::board::Board;
 use regex::Regex;
 use std::io;
 
-fn parse_input() -> (bool, usize, usize, bool) {
-    let err_msg = "Input must take format ( *f)? *\\d+ *\\d+ *";
+fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), String> {
     let re = Regex::new("(f *)?\\d+ *\\d+ *").expect("Invalid regex");
     let pat = Regex::new(" +").expect("Invalid regex");
-    let mut invalid_input = false;
-    ////! add out of range checks
-    let mut out_of_range = false;
+    let mut x: usize;
+    let mut y: usize;
+    let mut first: &str;
+    let mut flag: bool;
+
     let mut input = String::new();
-    io::stdin().read_line(&mut input).expect(&err_msg);
+    io::stdin().read_line(&mut input).expect("Input Error");
     input = input.trim().to_string();
-    while re.find(&input).is_none() || out_of_range {
-        invalid_input = true;
-        println!("{}", err_msg);
-        io::stdin().read_line(&mut input).expect(&err_msg);
-        input = input.trim().to_string();
+    if re.find(&input).is_none() {
+        return Err("ERR: Input was not in the correct format".to_string());
     }
     let mut mat = pat.split(&input);
-    let first = mat.next().unwrap();
+    first = mat.next().unwrap();
     if first.eq("f") {
-        return (
-            true,
-            mat.next().unwrap().parse::<usize>().unwrap() - 1,
-            mat.next().unwrap().parse::<usize>().unwrap() - 1,
-            invalid_input,
-        );
+        x = mat.next().unwrap().parse::<usize>().unwrap() - 1;
+        flag = true;
     } else {
-        return (
-            false,
-            first.parse::<usize>().unwrap() - 1,
-            mat.next().unwrap().parse::<usize>().unwrap() - 1,
-            invalid_input,
-        );
+        x = first.parse::<usize>().unwrap() - 1;
+        flag = false;
     }
+    y = mat.next().unwrap().parse::<usize>().unwrap() - 1;
+    if x >= x_max || y >= y_max {
+        return Err("ERR: Row and Col input cannot be larger than board".to_string());
+    }
+    return Ok((flag, x, y));
 }
 
 pub fn play_game(mut board: Board) {
@@ -44,11 +39,12 @@ pub fn play_game(mut board: Board) {
     let flag_eg = "eg, \"f 1 3\"";
     let msg_short = format!("{}\n{}", input_msg, flag_msg);
     let msg_long = format!("{}\n{}\n{}\n{}", input_msg, input_eg, flag_msg, flag_eg);
-    let mut last_trigger = false;
+    let mut last_trigger: bool;
     let mut flag: bool;
     let mut x: usize;
     let mut y: usize;
     let mut last_input_invalid: bool = true;
+    let mut input: Result<(bool, usize, usize), String>;
     loop {
         board.display();
         if last_input_invalid {
@@ -56,11 +52,14 @@ pub fn play_game(mut board: Board) {
         } else {
             println!("{}", msg_short);
         }
-        println!(
-            "size:{} triggered:{} mines:{}",
-            board.size, board.triggered, board.mines
-        );
-        (flag, x, y, last_input_invalid) = parse_input();
+        last_input_invalid = false;
+        input = parse_input(board.width, board.height);
+        if input.is_err() {
+            last_input_invalid = true;
+            println!("{}", input.err().unwrap());
+            continue;
+        }
+        (flag, x, y) = input.unwrap();
         if flag {
             board.toggle_flag(x, y);
         } else {

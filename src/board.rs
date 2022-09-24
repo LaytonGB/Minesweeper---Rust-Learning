@@ -34,8 +34,8 @@ pub struct Board {
     pub mines: usize,
     pub triggered: usize,
     pub size: usize,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     grid: Vec<Vec<Square>>,
 }
 
@@ -177,6 +177,9 @@ impl Board {
     pub fn end_game(&mut self) {
         for y in 0..self.grid.len() {
             for x in 0..self.grid[y].len() {
+                if self.grid[y][x].is_flagged {
+                    self.toggle_flag(x, y);
+                }
                 if !self.grid[y][x].is_triggered {
                     self.trigger(x, y);
                 }
