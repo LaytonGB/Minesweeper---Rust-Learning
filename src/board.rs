@@ -67,7 +67,7 @@ impl Board {
         };
         let mut mine_coordinates: HashSet<(usize, usize)> = HashSet::with_capacity(mines);
         let mut rng = rand::thread_rng();
-        while mine_coordinates.len() < mine_coordinates.capacity() {
+        while mine_coordinates.len() < mines {
             mine_coordinates.insert((rng.gen_range(0..width), rng.gen_range(0..height)));
         }
         for (x, y) in mine_coordinates {
