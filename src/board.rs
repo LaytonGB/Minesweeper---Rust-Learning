@@ -31,9 +31,11 @@ impl Square {
 
 #[derive(Debug)]
 pub struct Board {
+    pub mines: usize,
+    pub triggered: usize,
+    pub size: usize,
     width: usize,
     height: usize,
-    mines: usize,
     grid: Vec<Vec<Square>>,
 }
 
@@ -46,6 +48,8 @@ impl Board {
             width,
             height,
             mines,
+            triggered: 0,
+            size: width * height,
             grid: (0..height)
                 .map(|y| {
                     (0..width)
@@ -100,18 +104,34 @@ impl Board {
         count
     }
 
+    pub fn toggle_flag(&mut self, x: usize, y: usize) {
+        if self.grid[y][x].is_triggered {
+            println!("ERR: Cannot flag a triggered square");
+        }
+        self.grid[y][x].is_flagged = !self.grid[y][x].is_flagged;
+    }
+
+    //* Returns true if the most recently triggered square is mine */
     pub fn trigger(&mut self, x: usize, y: usize) -> bool {
         if self.grid[y][x].is_triggered {
             return false;
         }
+        if self.grid[y][x].is_flagged {
+            println!("ERR: Cannot trigger a flagged square");
+            return false;
+        }
+        self.triggered += 1;
         self.grid[y][x].is_triggered = true;
+        if self.grid[y][x].is_mine {
+            return true;
+        }
         if self.count_surrounding_mines(x, y) == 0 {
             let adj = self.get_all_adjascent(x, y);
             for s in adj {
                 self.trigger(s.x, s.y);
             }
         }
-        true
+        false
     }
 
     pub fn display(&self) -> () {
@@ -152,5 +172,16 @@ impl Board {
                 println!(" {:>number_width$}", "║");
             }
         }
+    }
+
+    pub fn end_game(&mut self) {
+        for y in 0..self.grid.len() {
+            for x in 0..self.grid[y].len() {
+                if !self.grid[y][x].is_triggered {
+                    self.trigger(x, y);
+                }
+            }
+        }
+        self.display();
     }
 }
