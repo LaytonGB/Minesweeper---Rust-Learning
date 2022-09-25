@@ -10,5 +10,5 @@ fn main() {
     // board.trigger(3, 3);
     // board.display();
 
-    let _game = play_game(board);
+    play_game(board);
 }

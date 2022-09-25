@@ -1,5 +1,5 @@
 use rand::Rng;
-use std::{cmp::max, collections::HashSet};
+use std::{cmp::max, collections::HashSet, fmt};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Square {
@@ -11,20 +11,18 @@ pub struct Square {
     adjascent_mines: usize,
 }
 
-impl Square {
-    fn to_string(&self) -> String {
+impl fmt::Display for Square {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.is_triggered {
             if self.is_mine {
-                '☢'.to_string()
+                write!(f, "☢")
             } else {
-                self.adjascent_mines.to_string()
+                write!(f, "{}", self.adjascent_mines)
             }
+        } else if self.is_flagged {
+            write!(f, "🏳")
         } else {
-            if self.is_flagged {
-                '🏳'.to_string()
-            } else {
-                '▣'.to_string()
-            }
+            write!(f, "▣")
         }
     }
 }
@@ -134,7 +132,7 @@ impl Board {
         false
     }
 
-    pub fn display(&self) -> () {
+    pub fn display(&self) {
         let number_width: usize = max(
             format!("{}", self.width).len(),
             format!("{}", self.height).len(),

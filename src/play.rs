@@ -29,7 +29,7 @@ fn parse_input(x_max: usize, y_max: usize) -> Result<(bool, usize, usize), Strin
     if x >= x_max || y >= y_max {
         return Err("ERR: Row and Col input cannot be larger than board".to_string());
     }
-    return Ok((flag, x, y));
+    Ok((flag, x, y))
 }
 
 pub fn play_game(mut board: Board) {
